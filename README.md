@@ -1,116 +1,79 @@
-# typescript-npm-package-template
+# route-with-dynamic-outlets
 
-> Template to kickstart creating a Node.js module using TypeScript and VSCode
-
-Inspired by [node-module-boilerplate](https://github.com/sindresorhus/node-module-boilerplate)
-
-## Features
-
-- [Semantic Release](https://github.com/semantic-release/semantic-release)
-- [Issue Templates](https://github.com/ryansonshine/typescript-npm-package-template/tree/main/.github/ISSUE_TEMPLATE)
-- [GitHub Actions](https://github.com/ryansonshine/typescript-npm-package-template/tree/main/.github/workflows)
-- [Codecov](https://about.codecov.io/)
-- [VSCode Launch Configurations](https://github.com/ryansonshine/typescript-npm-package-template/blob/main/.vscode/launch.json)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Husky](https://github.com/typicode/husky)
-- [Lint Staged](https://github.com/okonet/lint-staged)
-- [Commitizen](https://github.com/search?q=commitizen)
-- [Jest](https://jestjs.io/)
-- [ESLint](https://eslint.org/)
-- [Prettier](https://prettier.io/)
+Some bigger web applications provides panels/tabs interfaces. So far the implementations which I have saw were based on singular route with implementations which comes on top of it. While this solution works for simple case it cripples all advanced features which angular router has to offer (especially nestead routes). This library provides laverages angular router outlets to adress previous drawbacks.
+Curently it is rather proof on concept but it shows clean direction on how advanced panels/tabs interfaces can be implemented.
 
 ## Getting started
 
-### Set up your repository
-
-**Click the "Use this template" button.**
-
-Alternatively, create a new directory and then run:
+### Install
 
 ```bash
-curl -fsSL https://github.com/ryansonshine/typescript-npm-package-template/archive/main.tar.gz | tar -xz --strip-components=1
+npm install route-with-dynamic-outlets
 ```
 
-Replace `FULL_NAME`, `GITHUB_USER`, and `REPO_NAME` in the script below with your own details to personalize your new package:
-
-```bash
-FULL_NAME="John Smith"
-GITHUB_USER="johnsmith"
-REPO_NAME="my-cool-package"
-sed -i.mybak "s/\([\/\"]\)(ryansonshine)/$GITHUB_USER/g; s/typescript-npm-package-template\|my-package-name/$REPO_NAME/g; s/Ryan Sonshine/$FULL_NAME/g" package.json package-lock.json README.md
-rm *.mybak
-```
-
-### Add NPM Token
-
-Add your npm token to your GitHub repository secrets as `NPM_TOKEN`.
-
-### Add Codecov integration
-
-Enable the Codecov GitHub App [here](https://github.com/apps/codecov).
-
-**Remove everything from here and above**
-
----
-
-# my-package-name
-
-[![npm package][npm-img]][npm-url]
-[![Build Status][build-img]][build-url]
-[![Downloads][downloads-img]][downloads-url]
-[![Issues][issues-img]][issues-url]
-[![Code Coverage][codecov-img]][codecov-url]
-[![Commitizen Friendly][commitizen-img]][commitizen-url]
-[![Semantic Release][semantic-release-img]][semantic-release-url]
-
-> My awesome module
-
-## Install
-
-```bash
-npm install my-package-name
-```
-
-## Usage
+### Usage
 
 ```ts
-import { myPackage } from 'my-package-name';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {PlaceholderComponent} from "./placeholder/placeholder.component";
+import {createRouteWithDynamicOutlets} from "../route-with-dynamic-outlets/route-with-dynamic-outlets";
+import { Component } from '@angular/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { map, Observable, switchMap } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { OutletsMap } from '../../src';
 
-myPackage('hello');
-//=> 'hello from my package'
+@Component({
+  standalone: true,
+  selector: 'app-dynamic-outlets',
+  template: ```
+  <a [routerLink]="[{ outlets: { A: [''], B: [''] } }]">Open A and B</a>
+  <router-outlet *ngFor="let outlet of outlets$ | async" [name]="outlet">
+    {{outlet}}
+  </router-outlet>
+  ```,
+  imports: [RouterModule, CommonModule],
+})
+export class DynamicOutletsComponent {
+  constructor(protected activatedRoute: ActivatedRoute) {}
+
+  outlets$ = this.activatedRoute.data.pipe(
+    switchMap(({ outlets$ }) => outlets$ as Observable<OutletsMap>),
+    map(outlets => Object.keys(outlets ?? {}))
+  );
+}
+
+const routes: Routes = [
+    createRouteWithDynamicOutlets({
+        path: '',
+        component: DynamicOutletsComponent,
+        dynamicOutletFactory: () => ({
+            path: '',
+            component: PlaceholderComponent,
+        })
+    })
+];
+
+@NgModule({
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule]
+})
+export class AppWorkspaceRoutingModule {
+}
 ```
+Routes with dynamic outlets still can be nested.
 
-## API
-
-### myPackage(input, options?)
-
-#### input
-
-Type: `string`
-
-Lorem ipsum.
-
-#### options
-
-Type: `object`
-
-##### postfix
-
-Type: `string`
-Default: `rainbows`
-
-Lorem ipsum.
-
-[build-img]:https://github.com/ryansonshine/typescript-npm-package-template/actions/workflows/release.yml/badge.svg
-[build-url]:https://github.com/ryansonshine/typescript-npm-package-template/actions/workflows/release.yml
-[downloads-img]:https://img.shields.io/npm/dt/typescript-npm-package-template
-[downloads-url]:https://www.npmtrends.com/typescript-npm-package-template
-[npm-img]:https://img.shields.io/npm/v/typescript-npm-package-template
-[npm-url]:https://www.npmjs.com/package/typescript-npm-package-template
-[issues-img]:https://img.shields.io/github/issues/ryansonshine/typescript-npm-package-template
-[issues-url]:https://github.com/ryansonshine/typescript-npm-package-template/issues
-[codecov-img]:https://codecov.io/gh/ryansonshine/typescript-npm-package-template/branch/main/graph/badge.svg
-[codecov-url]:https://codecov.io/gh/ryansonshine/typescript-npm-package-template
+[build-img]:https://github.com/Skitionek/route-with-dynamic-outlets/actions/workflows/release.yml/badge.svg
+[build-url]:https://github.com/Skitionek/route-with-dynamic-outlets/actions/workflows/release.yml
+[downloads-img]:https://img.shields.io/npm/dt/route-with-dynamic-outlets
+[downloads-url]:https://www.npmtrends.com/route-with-dynamic-outlets
+[npm-img]:https://img.shields.io/npm/v/route-with-dynamic-outlets
+[npm-url]:https://www.npmjs.com/package/route-with-dynamic-outlets
+[issues-img]:https://img.shields.io/github/issues/Skitionek/route-with-dynamic-outlets
+[issues-url]:https://github.com/Skitionek/route-with-dynamic-outlets/issues
+[codecov-img]:https://codecov.io/gh/Skitionek/route-with-dynamic-outlets/branch/main/graph/badge.svg
+[codecov-url]:https://codecov.io/gh/Skitionek/route-with-dynamic-outlets
 [semantic-release-img]:https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg
 [semantic-release-url]:https://github.com/semantic-release/semantic-release
 [commitizen-img]:https://img.shields.io/badge/commitizen-friendly-brightgreen.svg
