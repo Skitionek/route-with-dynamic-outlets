@@ -1,4 +1,4 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-exec </dev/tty && node_modules/.bin/cz --hook || true
+if [ -t 0 ] && [ -t 1 ] && command -v cz >/dev/null 2>&1; then
+	cz --hook || true
+fi

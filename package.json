@@ -10,11 +10,13 @@
     "build": "tsc --project tsconfig.build.json",
     "clean": "rm -rf ./lib/",
     "cm": "cz",
+    "demo": "npm run demo:serve",
+    "demo:serve": "npx --yes http-server ./docs -p 4173 -c-1",
     "lint": "eslint ./src/ --fix",
     "prepare": "husky install",
     "semantic-release": "semantic-release",
-    "test:watch": "jest --watch",
-    "test": "jest --coverage",
+    "test:watch": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage",
     "typecheck": "tsc --noEmit"
   },
   "repository": {
@@ -24,7 +26,7 @@
   "license": "MIT",
   "author": "Dominik Maszczyk <Skitionek@gmail.com> (https://github.com/Skitionek)",
   "engines": {
-    "node": ">=12.0"
+    "node": ">=22.14.0"
   },
   "keywords": [
     "boilerplate",
@@ -42,32 +44,48 @@
   },
   "homepage": "https://github.com/Skitionek/route-with-dynamic-outlets#readme",
   "devDependencies": {
-    "@angular/core": "*",
-    "@types/jest": "*",
-    "@types/lodash": "^4.0.0",
-    "@types/node": "^12.20.11",
-    "@typescript-eslint/eslint-plugin": "^4.22.0",
-    "@typescript-eslint/parser": "^4.22.0",
-    "commitizen": "^4.2.8",
-    "conventional-changelog-conventionalcommits": "^5.0.0",
-    "cz-conventional-changelog": "*",
-    "eslint": "^7.25.0",
-    "eslint-config-prettier": "^8.3.0",
+    "@angular/common": "^21.2.4",
+    "@angular/compiler": "^21.2.4",
+    "@angular/compiler-cli": "^21.2.4",
+    "@angular/core": "^21.2.4",
+    "@angular/platform-browser": "^21.2.4",
+    "@angular/platform-browser-dynamic": "^21.2.4",
+    "@angular/router": "^21.2.4",
+    "@types/jest": "^30.0.0",
+    "@types/lodash": "^4.17.24",
+    "@types/node": "^22.19.15",
+    "@typescript-eslint/eslint-plugin": "^8.57.0",
+    "@typescript-eslint/parser": "^8.57.0",
+    "commitizen": "^4.3.1",
+    "conventional-changelog-conventionalcommits": "^9.3.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^3.4.0",
-    "husky": "^6.0.0",
-    "jest": "*",
-    "jest-preset-angular": "*",
-    "lint-staged": "^13.2.1",
-    "prettier": "^2.2.1",
-    "semantic-release": "^21.0.1",
-    "ts-node": "^10.2.1",
-    "typescript": "^4.2.4"
+    "eslint-plugin-prettier": "^5.5.5",
+    "husky": "^9.1.7",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
+    "jest-preset-angular": "^16.1.1",
+    "jsdom": "^26.1.0",
+    "lint-staged": "^16.3.3",
+    "lodash": "^4.17.23",
+    "prettier": "^3.8.1",
+    "rxjs": "^7.8.2",
+    "semantic-release": "^25.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "zone.js": "~0.15.0"
   },
   "peerDependencies": {
-    "@angular/router": "^16.0.0",
-    "lodash": "^4.0.0",
-    "rxjs": "~7.5.0"
+    "@angular/router": "^21.0.0",
+    "lodash": "^4.17.23",
+    "rxjs": "^7.8.0"
+  },
+  "overrides": {
+    "inquirer": "^8.2.7",
+    "lodash": "^4.17.23",
+    "tmp": "^0.2.5"
   },
   "config": {
     "commitizen": {

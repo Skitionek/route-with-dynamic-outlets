@@ -1,7 +1,12 @@
+const { createEsmPreset } = require('jest-preset-angular/presets');
+
 module.exports = {
-    testMatch: ['**/test/**/*.spec.ts'],
-    collectCoverageFrom: ['<rootDir>/src/**/*.ts', '!<rootDir>/src/types/**/*.ts',],
-    preset: 'jest-preset-angular',
-    setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
-    globalSetup: 'jest-preset-angular/global-setup',
+  ...createEsmPreset(),
+  testMatch: ['**/test/**/*.spec.ts'],
+  collectCoverageFrom: [
+    '<rootDir>/src/**/*.ts',
+    '!<rootDir>/src/types/**/*.ts',
+  ],
+  transformIgnorePatterns: ['node_modules/(?!tslib|rxjs)'],
+  setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
 };
