@@ -6,7 +6,7 @@ import {
   UrlSegment,
   UrlSegmentGroup,
 } from '@angular/router';
-import { difference, get, has, isEqual, isNil, partial, set } from 'lodash';
+import lodash from 'lodash';
 import { BehaviorSubject } from 'rxjs';
 
 export type OutletsMap = UrlSegmentGroup['children'];
@@ -27,15 +27,15 @@ const updateRoutes = (
 ) => {
   const existingOutlets = existingRoutes
     .map(route => route.outlet)
-    .filter(outlet => !isNil(outlet)) as string[];
-  if (!isEqual(existingOutlets, neededOutlets)) {
-    difference(existingOutlets, neededOutlets).forEach(outlet => {
+    .filter(outlet => !lodash.isNil(outlet));
+  if (!lodash.isEqual(existingOutlets, neededOutlets)) {
+    lodash.difference(existingOutlets, neededOutlets).forEach(outlet => {
       existingRoutes.splice(
         existingRoutes.findIndex(route => route.outlet === outlet),
         1
       );
     });
-    difference(neededOutlets, existingOutlets).forEach(outlet => {
+    lodash.difference(neededOutlets, existingOutlets).forEach(outlet => {
       existingRoutes.push({
         ...dynamicOutletFactory(outlet),
         outlet,
@@ -45,13 +45,20 @@ const updateRoutes = (
 };
 
 const updateOutlets = (route: Route, outlets: OutletsMap) => {
-  if (has(route, 'data.outlets$')) {
-    const outlets$ = get(route, 'data.outlets$') as BehaviorSubject<OutletsMap>;
-    if (!isEqual(outlets$.value, outlets)) {
+  if (lodash.has(route, 'data.outlets$')) {
+    const outlets$ = lodash.get(
+      route,
+      'data.outlets$'
+    ) as BehaviorSubject<OutletsMap>;
+    if (!lodash.isEqual(outlets$.value, outlets)) {
       outlets$.next(outlets);
     }
   } else {
-    set(route, 'data.outlets$', new BehaviorSubject<OutletsMap>(outlets));
+    lodash.set(
+      route,
+      'data.outlets$',
+      new BehaviorSubject<OutletsMap>(outlets)
+    );
   }
 };
 
@@ -79,7 +86,7 @@ const dynamicOutletMatcherFactory =
       updateRoutes(
         route.children,
         Object.keys(outlets),
-        partial(dynamicOutletFactory, segments, group, route)
+        lodash.partial(dynamicOutletFactory, segments, group, route)
       );
     }
     return matchResult;

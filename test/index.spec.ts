@@ -1,11 +1,24 @@
-import { Location } from '@angular/common';
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { Router, Routes, UrlSegment } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideLocationMocks } from '@angular/common/testing';
+import { Component } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  provideRouter,
+  Router,
+  RouterModule,
+  Routes,
+  UrlSegment,
+} from '@angular/router';
 import { DynamicOutletsComponent } from './components/dynamic-outlets.component';
 import { PlaceholderComponent } from './components/placeholder.component';
 
 import { createRouteWithDynamicOutlets } from '../src';
+
+@Component({
+  standalone: true,
+  imports: [RouterModule],
+  template: '<router-outlet />',
+})
+class TestHostComponent {}
 
 const routes: Routes = [
   createRouteWithDynamicOutlets({
@@ -48,60 +61,69 @@ const routes: Routes = [
 ];
 
 describe('Router: App', () => {
-  let location: Location;
+  let fixture: ComponentFixture<TestHostComponent>;
   let router: Router;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule.withRoutes(routes)],
+      imports: [TestHostComponent],
+      providers: [provideRouter(routes), provideLocationMocks()],
     });
 
-    router = TestBed.get(Router);
-    location = TestBed.get(Location);
+    router = TestBed.inject(Router);
 
+    fixture = TestBed.createComponent(TestHostComponent);
+    fixture.detectChanges();
     router.initialNavigation();
+    await fixture.whenStable();
   });
 
   describe('navigate on abc', () => {
-    it('/a(arbitraryName1:b(arbitraryName1:c))', fakeAsync(() => {
-      void router.navigate([
-        '/a',
-        {
-          outlets: {
-            arbitraryName1: ['b', { outlets: { arbitraryName1: ['c'] } }],
+    it('/a(arbitraryName1:b(arbitraryName1:c))', async () => {
+      await fixture.ngZone!.run(() =>
+        router.navigate([
+          '/a',
+          {
+            outlets: {
+              arbitraryName1: ['b', { outlets: { arbitraryName1: ['c'] } }],
+            },
           },
-        },
-      ]);
-      tick();
-      expect(location.path()).toBe('/a/(arbitraryName1:b/(arbitraryName1:c))');
-    }));
-    it('can delete outlet', fakeAsync(() => {
-      void router.navigate([
-        '/a',
-        {
-          outlets: {
-            arbitraryName1: ['b', { outlets: { arbitraryName1: ['c'] } }],
+        ])
+      );
+      fixture.detectChanges();
+      expect(router.url).toBe('/a/(arbitraryName1:b/(arbitraryName1:c))');
+    });
+    it('can delete outlet', async () => {
+      await fixture.ngZone!.run(() =>
+        router.navigate([
+          '/a',
+          {
+            outlets: {
+              arbitraryName1: ['b', { outlets: { arbitraryName1: ['c'] } }],
+            },
           },
-        },
-      ]);
-      tick();
-      expect(location.path()).toBe('/a/(arbitraryName1:b/(arbitraryName1:c))');
-      void router.navigate([
-        '/a',
-        {
-          outlets: {
-            arbitraryName1: ['b'],
+        ])
+      );
+      fixture.detectChanges();
+      expect(router.url).toBe('/a/(arbitraryName1:b/(arbitraryName1:c))');
+      await fixture.ngZone!.run(() =>
+        router.navigate([
+          '/a',
+          {
+            outlets: {
+              arbitraryName1: ['b'],
+            },
           },
-        },
-      ]);
-      tick();
-      expect(location.path()).toBe('/a/(arbitraryName1:b)');
-    }));
-    it('can use custom matcher', fakeAsync(() => {
-      void router.navigate(['/@username']);
-      tick();
-      expect(location.path()).toBe('/@username');
-    }));
+        ])
+      );
+      fixture.detectChanges();
+      expect(router.url).toBe('/a/(arbitraryName1:b)');
+    });
+    it('can use custom matcher', async () => {
+      await fixture.ngZone!.run(() => router.navigate(['/@username']));
+      fixture.detectChanges();
+      expect(router.url).toBe('/@username');
+    });
   });
 
   describe('navigate on loop', () => {});

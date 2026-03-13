@@ -1,669 +1,857 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>route-with-dynamic-outlets — Demo</title>
-  <style>
-    /* ─── Reset & base ─────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:          #0f1117;
-      --surface:     #1a1d27;
-      --surface2:    #242736;
-      --border:      #2e3147;
-      --accent:      #7c6aff;
-      --accent-dim:  #3d3580;
-      --text:        #e2e4f0;
-      --text-muted:  #8b8fa8;
-      --green:       #4ade80;
-      --red:         #f87171;
-      --yellow:      #fbbf24;
-      --blue:        #60a5fa;
-      --panel-a:     #7c6aff33;
-      --panel-b:     #4ade8033;
-      --panel-c:     #fbbf2433;
-      --panel-d:     #f8717133;
-      --panel-e:     #60a5fa33;
-      --radius:      10px;
-      --mono:        'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-
-    /* ─── Header ────────────────────────────────────────────────── */
-    .site-header {
-      background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 2rem 1rem 3rem;
-      text-align: center;
-    }
-
-    .site-header h1 {
-      font-size: clamp(1.8rem, 5vw, 3rem);
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-
-    .site-header h1 span { color: var(--accent); }
-
-    .site-header p.tagline {
-      margin-top: .75rem;
-      color: var(--text-muted);
-      font-size: 1.1rem;
-      max-width: 600px;
-      margin-inline: auto;
-    }
-
-    .badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: .5rem;
-      margin-top: 1.25rem;
-    }
-
-    .badge-row a img { height: 20px; }
-
-    .cta-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: .45rem;
-      padding: .55rem 1.3rem;
-      border-radius: 9999px;
-      font-size: .9rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: opacity .15s, transform .1s;
-    }
-
-    .btn:hover { opacity: .85; transform: translateY(-1px); }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .btn-ghost {
-      background: transparent;
-      border: 1.5px solid var(--border);
-      color: var(--text);
-    }
-
-    /* ─── Layout ────────────────────────────────────────────────── */
-    .container {
-      max-width: 1100px;
-      margin-inline: auto;
-      padding: 0 1.25rem;
-    }
-
-    section { padding: 3.5rem 0; }
-
-    section + section { border-top: 1px solid var(--border); }
-
-    h2.section-title {
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-    }
-
-    h2.section-title span { color: var(--accent); }
-
-    p.section-desc {
-      color: var(--text-muted);
-      max-width: 640px;
-      margin-bottom: 1.5rem;
-    }
-
-    /* ─── Code blocks ───────────────────────────────────────────── */
-    .code-block {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      font-size: .85rem;
-    }
-
-    .code-block-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: .6rem 1rem;
-      background: var(--surface2);
-      border-bottom: 1px solid var(--border);
-      font-size: .78rem;
-      color: var(--text-muted);
-      font-family: var(--mono);
-    }
-
-    .code-block pre {
-      padding: 1.25rem 1.5rem;
-      overflow-x: auto;
-      line-height: 1.7;
-    }
-
-    code, pre {
-      font-family: var(--mono);
-      font-size: .85rem;
-    }
-
-    .kw  { color: #c792ea; }
-    .fn  { color: #82aaff; }
-    .str { color: #c3e88d; }
-    .ty  { color: #ffcb6b; }
-    .cm  { color: var(--text-muted); font-style: italic; }
-    .op  { color: #89ddff; }
-    .nu  { color: #f78c6c; }
-
-    /* ─── Feature cards ─────────────────────────────────────────── */
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1.25rem;
-      margin-top: 1.25rem;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-    }
-
-    .card-icon { font-size: 2rem; margin-bottom: .75rem; }
-
-    .card h3 { font-size: 1rem; margin-bottom: .5rem; }
-
-    .card p { font-size: .875rem; color: var(--text-muted); }
-
-    /* ─── Interactive Demo ──────────────────────────────────────── */
-    #demo { background: var(--surface); }
-
-    .demo-wrapper {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-
-    /* address bar */
-    .demo-addressbar {
-      display: flex;
-      align-items: center;
-      gap: .75rem;
-      background: var(--surface2);
-      padding: .6rem 1rem;
-      border-bottom: 1px solid var(--border);
-      font-size: .8rem;
-    }
-
-    .demo-addressbar .dot-row span {
-      display: inline-block;
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      margin-right: 4px;
-    }
-
-    .dot-red    { background: var(--red); }
-    .dot-yellow { background: var(--yellow); }
-    .dot-green  { background: var(--green); }
-
-    #url-display {
-      flex: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: .3rem .8rem;
-      font-family: var(--mono);
-      font-size: .8rem;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* nav tabs */
-    .demo-nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .5rem;
-      padding: 1rem;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-    }
-
-    .demo-nav button {
-      padding: .4rem .9rem;
-      border-radius: 9999px;
-      border: 1.5px solid var(--border);
-      background: transparent;
-      color: var(--text-muted);
-      font-size: .8rem;
-      cursor: pointer;
-      transition: background .15s, color .15s, border-color .15s;
-    }
-
-    .demo-nav button:hover,
-    .demo-nav button.active {
-      background: var(--accent-dim);
-      border-color: var(--accent);
-      color: var(--text);
-    }
-
-    /* outlet container */
-    .demo-body {
-      display: flex;
-      flex-direction: column;
-      min-height: 260px;
-    }
-
-    .demo-main-outlet {
-      flex: 1;
-      padding: 1.25rem;
-    }
-
-    .demo-main-outlet > .outlet-label {
-      font-size: .7rem;
-      font-family: var(--mono);
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: .75rem;
-    }
-
-    .panels-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .75rem;
-    }
-
-    .panel {
-      flex: 1 1 180px;
-      min-width: 140px;
-      border-radius: var(--radius);
-      border: 1.5px dashed;
-      padding: 1rem;
-      transition: all .3s ease;
-      animation: fadeIn .25s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: .6rem;
-    }
-
-    .panel-name {
-      font-family: var(--mono);
-      font-size: .78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .panel-close {
-      background: transparent;
-      border: none;
-      color: inherit;
-      cursor: pointer;
-      opacity: .5;
-      font-size: 1rem;
-      line-height: 1;
-      padding: 0;
-    }
-
-    .panel-close:hover { opacity: 1; }
-
-    .panel-body {
-      font-size: .82rem;
-      color: var(--text-muted);
-    }
-
-    .panel-body code {
-      background: rgba(255,255,255,.05);
-      padding: .1em .4em;
-      border-radius: 4px;
-      font-size: .8rem;
-    }
-
-    .empty-state {
-      text-align: center;
-      color: var(--text-muted);
-      padding: 2rem;
-      font-size: .9rem;
-    }
-
-    .empty-state .arrow { font-size: 1.5rem; display: block; margin-bottom: .5rem; }
-
-    /* panel color themes */
-    .panel-A { border-color: #7c6aff88; background: var(--panel-a); }
-    .panel-B { border-color: #4ade8088; background: var(--panel-b); }
-    .panel-C { border-color: #fbbf2488; background: var(--panel-c); }
-    .panel-D { border-color: #f8717188; background: var(--panel-d); }
-    .panel-E { border-color: #60a5fa88; background: var(--panel-e); }
-
-    .panel-name-A { color: #7c6aff; }
-    .panel-name-B { color: #4ade80; }
-    .panel-name-C { color: #fbbf24; }
-    .panel-name-D { color: #f87171; }
-    .panel-name-E { color: #60a5fa; }
-
-    /* nested demo */
-    .nested-panel {
-      margin-top: .5rem;
-      padding: .6rem .8rem;
-      background: rgba(255,255,255,.04);
-      border: 1px dashed rgba(255,255,255,.15);
-      border-radius: 6px;
-      font-size: .78rem;
-    }
-
-    /* logs */
-    .demo-log {
-      border-top: 1px solid var(--border);
-      background: #0a0b10;
-      padding: .6rem 1rem;
-      font-family: var(--mono);
-      font-size: .75rem;
-      color: var(--text-muted);
-      max-height: 90px;
-      overflow-y: auto;
-    }
-
-    .log-entry { padding: .1rem 0; }
-    .log-entry .ts { color: #4a4f6a; margin-right: .5rem; }
-    .log-entry .add  { color: var(--green); }
-    .log-entry .rem  { color: var(--red); }
-    .log-entry .nav  { color: var(--blue); }
-
-    /* ─── Step section ──────────────────────────────────────────── */
-    .steps { counter-reset: step; }
-
-    .step {
-      display: flex;
-      gap: 1.25rem;
-      margin-bottom: 2.5rem;
-    }
-
-    .step-num {
-      counter-increment: step;
-      flex-shrink: 0;
-      width: 2.2rem;
-      height: 2.2rem;
-      border-radius: 50%;
-      background: var(--accent-dim);
-      border: 2px solid var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: .9rem;
-      color: var(--accent);
-    }
-
-    .step-num::after { content: counter(step); }
-
-    .step-content { flex: 1; }
-
-    .step-content h3 { font-size: 1rem; margin-bottom: .5rem; }
-
-    .step-content p { font-size: .9rem; color: var(--text-muted); margin-bottom: .75rem; }
-
-    /* ─── Comparison table ──────────────────────────────────────── */
-    .comparison {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
-    }
-
-    @media (max-width: 640px) { .comparison { grid-template-columns: 1fr; } }
-
-    .comparison-col { }
-
-    .comparison-col h3 {
-      font-size: .9rem;
-      font-weight: 600;
-      padding: .6rem .9rem;
-      border-radius: var(--radius) var(--radius) 0 0;
-      margin-bottom: 0;
-    }
-
-    .comparison-col.before h3 { background: rgba(248, 113, 113, .2); color: var(--red); }
-    .comparison-col.after  h3 { background: rgba(74, 222, 128, .2); color: var(--green); }
-
-    .comparison-col ul {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-top: none;
-      border-radius: 0 0 var(--radius) var(--radius);
-      padding: 1rem 1.25rem 1rem 2rem;
-      list-style: disc;
-    }
-
-    .comparison-col ul li {
-      font-size: .88rem;
-      color: var(--text-muted);
-      padding: .2rem 0;
-    }
-
-    /* ─── Footer ────────────────────────────────────────────────── */
-    footer {
-      text-align: center;
-      padding: 2rem 1rem;
-      border-top: 1px solid var(--border);
-      color: var(--text-muted);
-      font-size: .85rem;
-    }
-
-    footer a { color: var(--accent); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
-  </style>
-</head>
-<body>
-
-<!-- ─── HEADER ─────────────────────────────────────────────────── -->
-<header class="site-header">
-  <div class="container">
-    <h1><span>route</span>-with-dynamic-outlets</h1>
-    <p class="tagline">
-      Leverage Angular Router's full power — nested routes, guards, resolvers —
-      for panels &amp; tabs with <em>dynamically named</em> outlets.
-    </p>
-
-    <div class="badge-row">
-      <a href="https://github.com/Skitionek/route-with-dynamic-outlets/actions/workflows/release.yml">
-        <img src="https://github.com/Skitionek/route-with-dynamic-outlets/actions/workflows/release.yml/badge.svg" alt="Build" />
-      </a>
-      <a href="https://www.npmjs.com/package/route-with-dynamic-outlets">
-        <img src="https://img.shields.io/npm/v/route-with-dynamic-outlets" alt="npm" />
-      </a>
-      <a href="https://www.npmtrends.com/route-with-dynamic-outlets">
-        <img src="https://img.shields.io/npm/dt/route-with-dynamic-outlets" alt="Downloads" />
-      </a>
-      <a href="https://codecov.io/gh/Skitionek/route-with-dynamic-outlets">
-        <img src="https://codecov.io/gh/Skitionek/route-with-dynamic-outlets/branch/main/graph/badge.svg" alt="Coverage" />
-      </a>
-    </div>
-
-    <div class="cta-row">
-      <a class="btn btn-primary" href="https://www.npmjs.com/package/route-with-dynamic-outlets">
-        📦 npm install
-      </a>
-      <a class="btn btn-ghost" href="https://github.com/Skitionek/route-with-dynamic-outlets">
-        ⭐ View on GitHub
-      </a>
-    </div>
-  </div>
-</header>
-
-<!-- ─── FEATURES ───────────────────────────────────────────────── -->
-<section>
-  <div class="container">
-    <h2 class="section-title">Why <span>route-with-dynamic-outlets</span>?</h2>
-    <p class="section-desc">
-      Most panels/tabs implementations bypass the Angular Router entirely, losing
-      guards, resolvers, lazy loading, and nested routing. This library keeps all
-      those features while adding first-class support for outlets whose names are
-      determined at runtime from the URL.
-    </p>
-
-    <div class="comparison">
-      <div class="comparison-col before">
-        <h3>❌ Without this library</h3>
-        <ul>
-          <li>Custom state management for active panels</li>
-          <li>No route guards per panel</li>
-          <li>No lazy-loaded panel modules</li>
-          <li>Outlet names must be known at build time</li>
-          <li>No deep-link support for panel state</li>
-          <li>No nested routing inside panels</li>
-        </ul>
-      </div>
-      <div class="comparison-col after">
-        <h3>✅ With this library</h3>
-        <ul>
-          <li>Full Angular Router integration</li>
-          <li>Per-panel route guards &amp; resolvers</li>
-          <li>Lazy-loaded panel components</li>
-          <li>Outlet names come from the URL at runtime</li>
-          <li>Deep-linkable panel state via URL</li>
-          <li>Fully nestable dynamic outlets</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="cards" style="margin-top:2rem">
-      <div class="card">
-        <div class="card-icon">🔀</div>
-        <h3>Dynamic outlet names</h3>
-        <p>Outlet names are extracted directly from the URL — open any panel you want without touching your routes config.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🪆</div>
-        <h3>Fully nestable</h3>
-        <p>Dynamic outlets can contain further dynamic outlets, enabling arbitrarily deep panel hierarchies.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🛡️</div>
-        <h3>Guards &amp; resolvers</h3>
-        <p>Every dynamically-created route participates fully in Angular's routing pipeline — guards, resolvers, data — all work.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🔗</div>
-        <h3>Deep-linkable</h3>
-        <p>The URL <em>is</em> the state. Share a URL and the exact same panels open in the same order.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── INTERACTIVE DEMO ────────────────────────────────────────── -->
-<section id="demo" style="background: var(--surface)">
-  <div class="container">
-    <h2 class="section-title">🎮 Interactive <span>Demo</span></h2>
-    <p class="section-desc">
-      Click the navigation buttons to open/close panels. The URL bar updates to
-      reflect the router state, just as it would in a real Angular application.
-    </p>
-
-    <div class="demo-wrapper">
-      <!-- address bar -->
-      <div class="demo-addressbar">
-        <div class="dot-row">
-          <span class="dot-red"></span>
-          <span class="dot-yellow"></span>
-          <span class="dot-green"></span>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>route-with-dynamic-outlets — Demo</title>
+    <style>
+      /* ─── Reset & base ─────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0f1117;
+        --surface: #1a1d27;
+        --surface2: #242736;
+        --border: #2e3147;
+        --accent: #7c6aff;
+        --accent-dim: #3d3580;
+        --text: #e2e4f0;
+        --text-muted: #8b8fa8;
+        --green: #4ade80;
+        --red: #f87171;
+        --yellow: #fbbf24;
+        --blue: #60a5fa;
+        --panel-a: #7c6aff33;
+        --panel-b: #4ade8033;
+        --panel-c: #fbbf2433;
+        --panel-d: #f8717133;
+        --panel-e: #60a5fa33;
+        --radius: 10px;
+        --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      /* ─── Header ────────────────────────────────────────────────── */
+      .site-header {
+        background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+        border-bottom: 1px solid var(--border);
+        padding: 2rem 1rem 3rem;
+        text-align: center;
+      }
+
+      .site-header h1 {
+        font-size: clamp(1.8rem, 5vw, 3rem);
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+
+      .site-header h1 span {
+        color: var(--accent);
+      }
+
+      .site-header p.tagline {
+        margin-top: 0.75rem;
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin-inline: auto;
+      }
+
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1.25rem;
+      }
+
+      .badge-row a img {
+        height: 20px;
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 1.3rem;
+        border-radius: 9999px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition:
+          opacity 0.15s,
+          transform 0.1s;
+      }
+
+      .btn:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .btn-ghost {
+        background: transparent;
+        border: 1.5px solid var(--border);
+        color: var(--text);
+      }
+
+      /* ─── Layout ────────────────────────────────────────────────── */
+      .container {
+        max-width: 1100px;
+        margin-inline: auto;
+        padding: 0 1.25rem;
+      }
+
+      section {
+        padding: 3.5rem 0;
+      }
+
+      section + section {
+        border-top: 1px solid var(--border);
+      }
+
+      h2.section-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+      }
+
+      h2.section-title span {
+        color: var(--accent);
+      }
+
+      p.section-desc {
+        color: var(--text-muted);
+        max-width: 640px;
+        margin-bottom: 1.5rem;
+      }
+
+      /* ─── Code blocks ───────────────────────────────────────────── */
+      .code-block {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        font-size: 0.85rem;
+      }
+
+      .code-block-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 1rem;
+        background: var(--surface2);
+        border-bottom: 1px solid var(--border);
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        font-family: var(--mono);
+      }
+
+      .code-block pre {
+        padding: 1.25rem 1.5rem;
+        overflow-x: auto;
+        line-height: 1.7;
+      }
+
+      code,
+      pre {
+        font-family: var(--mono);
+        font-size: 0.85rem;
+      }
+
+      .kw {
+        color: #c792ea;
+      }
+      .fn {
+        color: #82aaff;
+      }
+      .str {
+        color: #c3e88d;
+      }
+      .ty {
+        color: #ffcb6b;
+      }
+      .cm {
+        color: var(--text-muted);
+        font-style: italic;
+      }
+      .op {
+        color: #89ddff;
+      }
+      .nu {
+        color: #f78c6c;
+      }
+
+      /* ─── Feature cards ─────────────────────────────────────────── */
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1.25rem;
+        margin-top: 1.25rem;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+      }
+
+      .card-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .card h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .card p {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+      }
+
+      /* ─── Interactive Demo ──────────────────────────────────────── */
+      #demo {
+        background: var(--surface);
+      }
+
+      .demo-wrapper {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+
+      /* address bar */
+      .demo-addressbar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--surface2);
+        padding: 0.6rem 1rem;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.8rem;
+      }
+
+      .demo-addressbar .dot-row span {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 4px;
+      }
+
+      .dot-red {
+        background: var(--red);
+      }
+      .dot-yellow {
+        background: var(--yellow);
+      }
+      .dot-green {
+        background: var(--green);
+      }
+
+      #url-display {
+        flex: 1;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.3rem 0.8rem;
+        font-family: var(--mono);
+        font-size: 0.8rem;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* nav tabs */
+      .demo-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+      }
+
+      .demo-nav button {
+        padding: 0.4rem 0.9rem;
+        border-radius: 9999px;
+        border: 1.5px solid var(--border);
+        background: transparent;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          color 0.15s,
+          border-color 0.15s;
+      }
+
+      .demo-nav button:hover,
+      .demo-nav button.active {
+        background: var(--accent-dim);
+        border-color: var(--accent);
+        color: var(--text);
+      }
+
+      /* outlet container */
+      .demo-body {
+        display: flex;
+        flex-direction: column;
+        min-height: 260px;
+      }
+
+      .demo-main-outlet {
+        flex: 1;
+        padding: 1.25rem;
+      }
+
+      .demo-main-outlet > .outlet-label {
+        font-size: 0.7rem;
+        font-family: var(--mono);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.75rem;
+      }
+
+      .panels-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .panel {
+        flex: 1 1 180px;
+        min-width: 140px;
+        border-radius: var(--radius);
+        border: 1.5px dashed;
+        padding: 1rem;
+        transition: all 0.3s ease;
+        animation: fadeIn 0.25s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.6rem;
+      }
+
+      .panel-name {
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .panel-close {
+        background: transparent;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 1rem;
+        line-height: 1;
+        padding: 0;
+      }
+
+      .panel-close:hover {
+        opacity: 1;
+      }
+
+      .panel-body {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+      }
+
+      .panel-body code {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 0.1em 0.4em;
+        border-radius: 4px;
+        font-size: 0.8rem;
+      }
+
+      .empty-state {
+        text-align: center;
+        color: var(--text-muted);
+        padding: 2rem;
+        font-size: 0.9rem;
+      }
+
+      .empty-state .arrow {
+        font-size: 1.5rem;
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      /* panel color themes */
+      .panel-A {
+        border-color: #7c6aff88;
+        background: var(--panel-a);
+      }
+      .panel-B {
+        border-color: #4ade8088;
+        background: var(--panel-b);
+      }
+      .panel-C {
+        border-color: #fbbf2488;
+        background: var(--panel-c);
+      }
+      .panel-D {
+        border-color: #f8717188;
+        background: var(--panel-d);
+      }
+      .panel-E {
+        border-color: #60a5fa88;
+        background: var(--panel-e);
+      }
+
+      .panel-name-A {
+        color: #7c6aff;
+      }
+      .panel-name-B {
+        color: #4ade80;
+      }
+      .panel-name-C {
+        color: #fbbf24;
+      }
+      .panel-name-D {
+        color: #f87171;
+      }
+      .panel-name-E {
+        color: #60a5fa;
+      }
+
+      /* nested demo */
+      .nested-panel {
+        margin-top: 0.5rem;
+        padding: 0.6rem 0.8rem;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        border-radius: 6px;
+        font-size: 0.78rem;
+      }
+
+      /* logs */
+      .demo-log {
+        border-top: 1px solid var(--border);
+        background: #0a0b10;
+        padding: 0.6rem 1rem;
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        max-height: 90px;
+        overflow-y: auto;
+      }
+
+      .log-entry {
+        padding: 0.1rem 0;
+      }
+      .log-entry .ts {
+        color: #4a4f6a;
+        margin-right: 0.5rem;
+      }
+      .log-entry .add {
+        color: var(--green);
+      }
+      .log-entry .rem {
+        color: var(--red);
+      }
+      .log-entry .nav {
+        color: var(--blue);
+      }
+
+      /* ─── Step section ──────────────────────────────────────────── */
+      .steps {
+        counter-reset: step;
+      }
+
+      .step {
+        display: flex;
+        gap: 1.25rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .step-num {
+        counter-increment: step;
+        flex-shrink: 0;
+        width: 2.2rem;
+        height: 2.2rem;
+        border-radius: 50%;
+        background: var(--accent-dim);
+        border: 2px solid var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--accent);
+      }
+
+      .step-num::after {
+        content: counter(step);
+      }
+
+      .step-content {
+        flex: 1;
+      }
+
+      .step-content h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .step-content p {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+      }
+
+      /* ─── Comparison table ──────────────────────────────────────── */
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+      }
+
+      @media (max-width: 640px) {
+        .comparison {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .comparison-col {
+      }
+
+      .comparison-col h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 0.6rem 0.9rem;
+        border-radius: var(--radius) var(--radius) 0 0;
+        margin-bottom: 0;
+      }
+
+      .comparison-col.before h3 {
+        background: rgba(248, 113, 113, 0.2);
+        color: var(--red);
+      }
+      .comparison-col.after h3 {
+        background: rgba(74, 222, 128, 0.2);
+        color: var(--green);
+      }
+
+      .comparison-col ul {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 var(--radius) var(--radius);
+        padding: 1rem 1.25rem 1rem 2rem;
+        list-style: disc;
+      }
+
+      .comparison-col ul li {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        padding: 0.2rem 0;
+      }
+
+      /* ─── Footer ────────────────────────────────────────────────── */
+      footer {
+        text-align: center;
+        padding: 2rem 1rem;
+        border-top: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.85rem;
+      }
+
+      footer a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      footer a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ─── HEADER ─────────────────────────────────────────────────── -->
+    <header class="site-header">
+      <div class="container">
+        <h1><span>route</span>-with-dynamic-outlets</h1>
+        <p class="tagline">
+          Leverage Angular Router's full power — nested routes, guards,
+          resolvers — for panels &amp; tabs with
+          <em>dynamically named</em> outlets.
+        </p>
+
+        <div class="badge-row">
+          <a
+            href="https://github.com/Skitionek/route-with-dynamic-outlets/actions/workflows/release.yml"
+          >
+            <img
+              src="https://github.com/Skitionek/route-with-dynamic-outlets/actions/workflows/release.yml/badge.svg"
+              alt="Build"
+            />
+          </a>
+          <a href="https://www.npmjs.com/package/route-with-dynamic-outlets">
+            <img
+              src="https://img.shields.io/npm/v/route-with-dynamic-outlets"
+              alt="npm"
+            />
+          </a>
+          <a href="https://www.npmtrends.com/route-with-dynamic-outlets">
+            <img
+              src="https://img.shields.io/npm/dt/route-with-dynamic-outlets"
+              alt="Downloads"
+            />
+          </a>
+          <a href="https://codecov.io/gh/Skitionek/route-with-dynamic-outlets">
+            <img
+              src="https://codecov.io/gh/Skitionek/route-with-dynamic-outlets/branch/main/graph/badge.svg"
+              alt="Coverage"
+            />
+          </a>
         </div>
-        <div id="url-display">/</div>
-      </div>
 
-      <!-- nav buttons -->
-      <div class="demo-nav">
-        <button onclick="demoNav('none')" id="btn-none" class="active">Home (no panels)</button>
-        <button onclick="demoNav('A')"    id="btn-A">Open panel A</button>
-        <button onclick="demoNav('AB')"   id="btn-AB">Open A + B</button>
-        <button onclick="demoNav('ABC')"  id="btn-ABC">Open A + B + C</button>
-        <button onclick="demoNav('ABCDE')" id="btn-ABCDE">Open A–E</button>
-        <button onclick="demoNav('nested')" id="btn-nested">Nested outlets</button>
+        <div class="cta-row">
+          <a
+            class="btn btn-primary"
+            href="https://www.npmjs.com/package/route-with-dynamic-outlets"
+          >
+            📦 npm install
+          </a>
+          <a
+            class="btn btn-ghost"
+            href="https://github.com/Skitionek/route-with-dynamic-outlets"
+          >
+            ⭐ View on GitHub
+          </a>
+        </div>
       </div>
+    </header>
 
-      <!-- outlet content -->
-      <div class="demo-body">
-        <div class="demo-main-outlet">
-          <div class="outlet-label">router-outlet (primary)</div>
-          <div id="panels-container" class="panels-grid">
-            <div class="empty-state">
-              <span class="arrow">☝️</span>
-              Click a navigation button above to open dynamic outlets.
+    <!-- ─── FEATURES ───────────────────────────────────────────────── -->
+    <section>
+      <div class="container">
+        <h2 class="section-title">
+          Why <span>route-with-dynamic-outlets</span>?
+        </h2>
+        <p class="section-desc">
+          Most panels/tabs implementations bypass the Angular Router entirely,
+          losing guards, resolvers, lazy loading, and nested routing. This
+          library keeps all those features while adding first-class support for
+          outlets whose names are determined at runtime from the URL.
+        </p>
+
+        <div class="comparison">
+          <div class="comparison-col before">
+            <h3>❌ Without this library</h3>
+            <ul>
+              <li>Custom state management for active panels</li>
+              <li>No route guards per panel</li>
+              <li>No lazy-loaded panel modules</li>
+              <li>Outlet names must be known at build time</li>
+              <li>No deep-link support for panel state</li>
+              <li>No nested routing inside panels</li>
+            </ul>
+          </div>
+          <div class="comparison-col after">
+            <h3>✅ With this library</h3>
+            <ul>
+              <li>Full Angular Router integration</li>
+              <li>Per-panel route guards &amp; resolvers</li>
+              <li>Lazy-loaded panel components</li>
+              <li>Outlet names come from the URL at runtime</li>
+              <li>Deep-linkable panel state via URL</li>
+              <li>Fully nestable dynamic outlets</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="cards" style="margin-top: 2rem">
+          <div class="card">
+            <div class="card-icon">🔀</div>
+            <h3>Dynamic outlet names</h3>
+            <p>
+              Outlet names are extracted directly from the URL — open any panel
+              you want without touching your routes config.
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🪆</div>
+            <h3>Fully nestable</h3>
+            <p>
+              Dynamic outlets can contain further dynamic outlets, enabling
+              arbitrarily deep panel hierarchies.
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🛡️</div>
+            <h3>Guards &amp; resolvers</h3>
+            <p>
+              Every dynamically-created route participates fully in Angular's
+              routing pipeline — guards, resolvers, data — all work.
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🔗</div>
+            <h3>Deep-linkable</h3>
+            <p>
+              The URL <em>is</em> the state. Share a URL and the exact same
+              panels open in the same order.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── INTERACTIVE DEMO ────────────────────────────────────────── -->
+    <section id="demo" style="background: var(--surface)">
+      <div class="container">
+        <h2 class="section-title">🎮 Interactive <span>Demo</span></h2>
+        <p class="section-desc">
+          Click the navigation buttons to open/close panels. The URL bar updates
+          to reflect the router state, just as it would in a real Angular
+          application.
+        </p>
+
+        <div class="demo-wrapper">
+          <!-- address bar -->
+          <div class="demo-addressbar">
+            <div class="dot-row">
+              <span class="dot-red"></span>
+              <span class="dot-yellow"></span>
+              <span class="dot-green"></span>
+            </div>
+            <div id="url-display">/</div>
+          </div>
+
+          <!-- nav buttons -->
+          <div class="demo-nav">
+            <button onclick="demoNav('none')" id="btn-none" class="active">
+              Home (no panels)
+            </button>
+            <button onclick="demoNav('A')" id="btn-A">Open panel A</button>
+            <button onclick="demoNav('AB')" id="btn-AB">Open A + B</button>
+            <button onclick="demoNav('ABC')" id="btn-ABC">
+              Open A + B + C
+            </button>
+            <button onclick="demoNav('ABCDE')" id="btn-ABCDE">Open A–E</button>
+            <button onclick="demoNav('nested')" id="btn-nested">
+              Nested outlets
+            </button>
+          </div>
+
+          <!-- outlet content -->
+          <div class="demo-body">
+            <div class="demo-main-outlet">
+              <div class="outlet-label">router-outlet (primary)</div>
+              <div id="panels-container" class="panels-grid">
+                <div class="empty-state">
+                  <span class="arrow">☝️</span>
+                  Click a navigation button above to open dynamic outlets.
+                </div>
+              </div>
+            </div>
+            <div class="demo-log" id="demo-log">
+              <div class="log-entry">
+                <span class="ts">00:00:00</span> App initialized — no outlets
+                active
+              </div>
             </div>
           </div>
         </div>
-        <div class="demo-log" id="demo-log">
-          <div class="log-entry"><span class="ts">00:00:00</span> App initialized — no outlets active</div>
-        </div>
+
+        <!-- explanation below demo -->
+        <p
+          style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted)"
+        >
+          💡 In a real app each panel would be a full Angular component loaded
+          via
+          <code>&lt;router-outlet [name]="outlet"&gt;</code>. The library calls
+          <code>updateRoutes()</code> automatically whenever the URL matcher
+          runs, keeping the child routes in sync with the active outlets.
+        </p>
       </div>
-    </div>
+    </section>
 
-    <!-- explanation below demo -->
-    <p style="margin-top:1rem; font-size:.85rem; color:var(--text-muted);">
-      💡 In a real app each panel would be a full Angular component loaded via
-      <code>&lt;router-outlet [name]="outlet"&gt;</code>.
-      The library calls <code>updateRoutes()</code> automatically whenever the
-      URL matcher runs, keeping the child routes in sync with the active outlets.
-    </p>
-  </div>
-</section>
+    <!-- ─── USAGE ───────────────────────────────────────────────────── -->
+    <section id="usage">
+      <div class="container">
+        <h2 class="section-title">🚀 Getting <span>Started</span></h2>
 
-<!-- ─── USAGE ───────────────────────────────────────────────────── -->
-<section id="usage">
-  <div class="container">
-    <h2 class="section-title">🚀 Getting <span>Started</span></h2>
-
-    <div class="steps">
-
-      <div class="step">
-        <div class="step-num"></div>
-        <div class="step-content">
-          <h3>Install</h3>
-          <div class="code-block">
-            <div class="code-block-header"><span>bash</span></div>
-            <pre>npm install route-with-dynamic-outlets</pre>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-content">
+              <h3>Install</h3>
+              <div class="code-block">
+                <div class="code-block-header"><span>bash</span></div>
+                <pre>npm install route-with-dynamic-outlets</pre>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="step">
-        <div class="step-num"></div>
-        <div class="step-content">
-          <h3>Create a component that renders dynamic outlets</h3>
-          <p>Subscribe to the <code>outlets$</code> stream from route data and render a
-          <code>&lt;router-outlet&gt;</code> for each active outlet name.</p>
-          <div class="code-block">
-            <div class="code-block-header"><span>dynamic-outlets.component.ts</span></div>
-            <pre><span class="kw">import</span> { <span class="ty">Component</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-content">
+              <h3>Create a component that renders dynamic outlets</h3>
+              <p>
+                Subscribe to the <code>outlets$</code> stream from route data
+                and render a <code>&lt;router-outlet&gt;</code> for each active
+                outlet name.
+              </p>
+              <div class="code-block">
+                <div class="code-block-header">
+                  <span>dynamic-outlets.component.ts</span>
+                </div>
+                <pre><span class="kw">import</span> { <span class="ty">Component</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
 <span class="kw">import</span> { <span class="ty">ActivatedRoute</span>, <span class="ty">RouterModule</span> } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
 <span class="kw">import</span> { <span class="fn">map</span>, <span class="ty">Observable</span>, <span class="fn">switchMap</span> } <span class="kw">from</span> <span class="str">'rxjs'</span>;
 <span class="kw">import</span> { <span class="ty">CommonModule</span> } <span class="kw">from</span> <span class="str">'@angular/common'</span>;
@@ -689,19 +877,28 @@
     <span class="fn">map</span>(outlets <span class="op">=></span> <span class="ty">Object</span>.<span class="fn">keys</span>(outlets <span class="op">??</span> {}))
   );
 }</pre>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="step">
-        <div class="step-num"></div>
-        <div class="step-content">
-          <h3>Register the route with <code>createRouteWithDynamicOutlets</code></h3>
-          <p>Wrap your route definition in <code>createRouteWithDynamicOutlets()</code> and provide a
-          <code>dynamicOutletFactory</code> that returns the child route config for each outlet.</p>
-          <div class="code-block">
-            <div class="code-block-header"><span>app-routing.module.ts</span></div>
-            <pre><span class="kw">import</span> { <span class="ty">NgModule</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-content">
+              <h3>
+                Register the route with
+                <code>createRouteWithDynamicOutlets</code>
+              </h3>
+              <p>
+                Wrap your route definition in
+                <code>createRouteWithDynamicOutlets()</code> and provide a
+                <code>dynamicOutletFactory</code> that returns the child route
+                config for each outlet.
+              </p>
+              <div class="code-block">
+                <div class="code-block-header">
+                  <span>app-routing.module.ts</span>
+                </div>
+                <pre><span class="kw">import</span> { <span class="ty">NgModule</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
 <span class="kw">import</span> { <span class="ty">RouterModule</span>, <span class="ty">Routes</span> } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
 <span class="kw">import</span> { <span class="fn">createRouteWithDynamicOutlets</span> } <span class="kw">from</span> <span class="str">'route-with-dynamic-outlets'</span>;
 <span class="kw">import</span> { <span class="ty">DynamicOutletsComponent</span> } <span class="kw">from</span> <span class="str">'./dynamic-outlets/dynamic-outlets.component'</span>;
@@ -724,19 +921,25 @@
   exports: [<span class="ty">RouterModule</span>],
 })
 <span class="kw">export class</span> <span class="ty">AppRoutingModule</span> {}</pre>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="step">
-        <div class="step-num"></div>
-        <div class="step-content">
-          <h3>Navigate to open panels</h3>
-          <p>Use Angular's standard <code>routerLink</code> or <code>Router.navigate()</code> with named outlets.
-          The library automatically creates child routes for each outlet present in the URL.</p>
-          <div class="code-block">
-            <div class="code-block-header"><span>template snippet</span></div>
-            <pre><span class="cm">&lt;!-- open two panels simultaneously --&gt;</span>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-content">
+              <h3>Navigate to open panels</h3>
+              <p>
+                Use Angular's standard <code>routerLink</code> or
+                <code>Router.navigate()</code> with named outlets. The library
+                automatically creates child routes for each outlet present in
+                the URL.
+              </p>
+              <div class="code-block">
+                <div class="code-block-header">
+                  <span>template snippet</span>
+                </div>
+                <pre><span class="cm">&lt;!-- open two panels simultaneously --&gt;</span>
 &lt;a [routerLink]="[{ outlets: { <span class="str">A</span>: [<span class="str">''</span>], <span class="str">B</span>: [<span class="str">''</span>] } }]"&gt;
   Open A and B
 &lt;/a&gt;
@@ -745,31 +948,39 @@
 &lt;a [routerLink]="[{ outlets: { <span class="str">A</span>: <span class="kw">null</span> } }]"&gt;
   Close A
 &lt;/a&gt;</pre>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- ─── ADVANCED USAGE ──────────────────────────────────────────── -->
-<section id="advanced">
-  <div class="container">
-    <h2 class="section-title">⚙️ Advanced <span>Usage</span></h2>
+    <!-- ─── ADVANCED USAGE ──────────────────────────────────────────── -->
+    <section id="advanced">
+      <div class="container">
+        <h2 class="section-title">⚙️ Advanced <span>Usage</span></h2>
 
-    <p class="section-desc">
-      The <code>dynamicOutletFactory</code> receives the full routing context,
-      letting you customize each outlet's route based on segment data.
-    </p>
+        <p class="section-desc">
+          The <code>dynamicOutletFactory</code> receives the full routing
+          context, letting you customize each outlet's route based on segment
+          data.
+        </p>
 
-    <div style="display:grid; gap:1.5rem; grid-template-columns: repeat(auto-fill, minmax(460px,1fr))">
-
-      <!-- custom matcher -->
-      <div>
-        <h3 style="margin-bottom:.75rem; font-size:1rem">Custom URL matcher (e.g. <code>/@username</code>)</h3>
-        <div class="code-block">
-          <div class="code-block-header"><span>routing.ts</span></div>
-          <pre><span class="fn">createRouteWithDynamicOutlets</span>({
+        <div
+          style="
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
+          "
+        >
+          <!-- custom matcher -->
+          <div>
+            <h3 style="margin-bottom: 0.75rem; font-size: 1rem">
+              Custom URL matcher (e.g. <code>/@username</code>)
+            </h3>
+            <div class="code-block">
+              <div class="code-block-header"><span>routing.ts</span></div>
+              <pre><span class="fn">createRouteWithDynamicOutlets</span>({
   <span class="cm">// Match /@username style segments</span>
   matcher: (segments) <span class="op">=></span> {
     <span class="kw">if</span> (segments[<span class="nu">0</span>]?.path.<span class="fn">startsWith</span>(<span class="str">'@'</span>)) {
@@ -784,15 +995,17 @@
     data: { outletName },   <span class="cm">// pass context to the component</span>
   }),
 })</pre>
-        </div>
-      </div>
+            </div>
+          </div>
 
-      <!-- nested -->
-      <div>
-        <h3 style="margin-bottom:.75rem; font-size:1rem">Nested dynamic outlets</h3>
-        <div class="code-block">
-          <div class="code-block-header"><span>routing.ts</span></div>
-          <pre><span class="kw">const</span> panelRoute = <span class="fn">createRouteWithDynamicOutlets</span>({
+          <!-- nested -->
+          <div>
+            <h3 style="margin-bottom: 0.75rem; font-size: 1rem">
+              Nested dynamic outlets
+            </h3>
+            <div class="code-block">
+              <div class="code-block-header"><span>routing.ts</span></div>
+              <pre><span class="kw">const</span> panelRoute = <span class="fn">createRouteWithDynamicOutlets</span>({
   path: <span class="str">''</span>,
   component: <span class="ty">PanelComponent</span>,
   dynamicOutletFactory: () <span class="op">=></span> ({
@@ -806,15 +1019,17 @@
   component: <span class="ty">WorkspaceComponent</span>,
   dynamicOutletFactory: () <span class="op">=></span> panelRoute,  <span class="cm">// ← nest!</span>
 })</pre>
-        </div>
-      </div>
+            </div>
+          </div>
 
-      <!-- type reference -->
-      <div>
-        <h3 style="margin-bottom:.75rem; font-size:1rem">API reference</h3>
-        <div class="code-block">
-          <div class="code-block-header"><span>types</span></div>
-          <pre><span class="cm">/** Alias for the children map on a UrlSegmentGroup */</span>
+          <!-- type reference -->
+          <div>
+            <h3 style="margin-bottom: 0.75rem; font-size: 1rem">
+              API reference
+            </h3>
+            <div class="code-block">
+              <div class="code-block-header"><span>types</span></div>
+              <pre><span class="cm">/** Alias for the children map on a UrlSegmentGroup */</span>
 <span class="kw">type</span> <span class="ty">OutletsMap</span> = <span class="ty">UrlSegmentGroup</span>[<span class="str">'children'</span>];
 
 <span class="cm">/** Extend Route with your factory */</span>
@@ -831,63 +1046,94 @@
 <span class="kw">function</span> <span class="fn">createRouteWithDynamicOutlets</span>(
   route: <span class="ty">RouteWithDynamicOutlets</span>
 ): <span class="ty">Route</span>;</pre>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- ─── FOOTER ──────────────────────────────────────────────────── -->
-<footer>
-  <p>
-    MIT License &nbsp;·&nbsp;
-    <a href="https://github.com/Skitionek/route-with-dynamic-outlets">GitHub</a> &nbsp;·&nbsp;
-    <a href="https://www.npmjs.com/package/route-with-dynamic-outlets">npm</a> &nbsp;·&nbsp;
-    Made by <a href="https://github.com/Skitionek">Dominik Maszczyk</a>
-  </p>
-</footer>
+    <!-- ─── FOOTER ──────────────────────────────────────────────────── -->
+    <footer>
+      <p>
+        MIT License &nbsp;·&nbsp;
+        <a href="https://github.com/Skitionek/route-with-dynamic-outlets"
+          >GitHub</a
+        >
+        &nbsp;·&nbsp;
+        <a href="https://www.npmjs.com/package/route-with-dynamic-outlets"
+          >npm</a
+        >
+        &nbsp;·&nbsp; Made by
+        <a href="https://github.com/Skitionek">Dominik Maszczyk</a>
+      </p>
+    </footer>
 
-<!-- ─── DEMO SCRIPT ─────────────────────────────────────────────── -->
-<script>
-  // ── helpers ──────────────────────────────────────────────────────
-  const PANEL_INFO = {
-    A: { label: 'Panel A', color: 'A', desc: 'outlet: <code>A</code> → renders <code>PanelComponent</code>' },
-    B: { label: 'Panel B', color: 'B', desc: 'outlet: <code>B</code> → renders <code>PanelComponent</code>' },
-    C: { label: 'Panel C', color: 'C', desc: 'outlet: <code>C</code> → renders <code>PanelComponent</code>' },
-    D: { label: 'Panel D', color: 'D', desc: 'outlet: <code>D</code> → renders <code>PanelComponent</code>' },
-    E: { label: 'Panel E', color: 'E', desc: 'outlet: <code>E</code> → renders <code>PanelComponent</code>' },
-  };
+    <!-- ─── DEMO SCRIPT ─────────────────────────────────────────────── -->
+    <script>
+      // ── helpers ──────────────────────────────────────────────────────
+      const PANEL_INFO = {
+        A: {
+          label: 'Panel A',
+          color: 'A',
+          desc: 'outlet: <code>A</code> → renders <code>PanelComponent</code>',
+        },
+        B: {
+          label: 'Panel B',
+          color: 'B',
+          desc: 'outlet: <code>B</code> → renders <code>PanelComponent</code>',
+        },
+        C: {
+          label: 'Panel C',
+          color: 'C',
+          desc: 'outlet: <code>C</code> → renders <code>PanelComponent</code>',
+        },
+        D: {
+          label: 'Panel D',
+          color: 'D',
+          desc: 'outlet: <code>D</code> → renders <code>PanelComponent</code>',
+        },
+        E: {
+          label: 'Panel E',
+          color: 'E',
+          desc: 'outlet: <code>E</code> → renders <code>PanelComponent</code>',
+        },
+      };
 
-  const NESTED_CHILD = { label: 'Sub-panel A1', color: 'B', desc: 'nested outlet: <code>A1</code> inside A' };
+      const NESTED_CHILD = {
+        label: 'Sub-panel A1',
+        color: 'B',
+        desc: 'nested outlet: <code>A1</code> inside A',
+      };
 
-  let activeOutlets = [];
+      let activeOutlets = [];
 
-  function ts() {
-    const d = new Date();
-    return [d.getHours(), d.getMinutes(), d.getSeconds()]
-      .map(n => String(n).padStart(2, '0')).join(':');
-  }
+      function ts() {
+        const d = new Date();
+        return [d.getHours(), d.getMinutes(), d.getSeconds()]
+          .map(n => String(n).padStart(2, '0'))
+          .join(':');
+      }
 
-  function log(msg, type = 'nav') {
-    const el = document.getElementById('demo-log');
-    const entry = document.createElement('div');
-    entry.className = 'log-entry';
-    entry.innerHTML = `<span class="ts">${ts()}</span><span class="${type}">${msg}</span>`;
-    el.appendChild(entry);
-    el.scrollTop = el.scrollHeight;
-  }
+      function log(msg, type = 'nav') {
+        const el = document.getElementById('demo-log');
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerHTML = `<span class="ts">${ts()}</span><span class="${type}">${msg}</span>`;
+        el.appendChild(entry);
+        el.scrollTop = el.scrollHeight;
+      }
 
-  function buildUrl(outlets, nested) {
-    if (outlets.length === 0) return '/';
-    const parts = outlets.map(o => `${o}:a`).join('//');
-    if (nested) {
-      return `/(${parts}//(A1:b))`;
-    }
-    return `/(${parts})`;
-  }
+      function buildUrl(outlets, nested) {
+        if (outlets.length === 0) return '/';
+        const parts = outlets.map(o => `${o}:a`).join('//');
+        if (nested) {
+          return `/(${parts}//(A1:b))`;
+        }
+        return `/(${parts})`;
+      }
 
-  function buildPanelHTML(key, info, isNested) {
-    return `
+      function buildPanelHTML(key, info, isNested) {
+        return `
       <div class="panel panel-${info.color}" id="panel-${key}">
         <div class="panel-header">
           <span class="panel-name panel-name-${info.color}">${info.label}</span>
@@ -898,69 +1144,82 @@
           ${isNested ? `<div class="nested-panel">🪆 <strong>Sub-panel A1</strong> — nested <code>&lt;router-outlet name="A1"&gt;</code> inside A</div>` : ''}
         </div>
       </div>`;
-  }
+      }
 
-  function renderPanels(outlets, nested) {
-    const container = document.getElementById('panels-container');
-    if (outlets.length === 0) {
-      container.innerHTML = `
+      function renderPanels(outlets, nested) {
+        const container = document.getElementById('panels-container');
+        if (outlets.length === 0) {
+          container.innerHTML = `
         <div class="empty-state">
           <span class="arrow">☝️</span>
           Click a navigation button above to open dynamic outlets.
         </div>`;
-    } else {
-      container.innerHTML = outlets
-        .map(key => buildPanelHTML(key, PANEL_INFO[key], nested && key === 'A'))
-        .join('');
-    }
-  }
+        } else {
+          container.innerHTML = outlets
+            .map(key =>
+              buildPanelHTML(key, PANEL_INFO[key], nested && key === 'A')
+            )
+            .join('');
+        }
+      }
 
-  function updateButtons(active) {
-    document.querySelectorAll('.demo-nav button').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('btn-' + active);
-    if (btn) btn.classList.add('active');
-  }
+      function updateButtons(active) {
+        document
+          .querySelectorAll('.demo-nav button')
+          .forEach(b => b.classList.remove('active'));
+        const btn = document.getElementById('btn-' + active);
+        if (btn) btn.classList.add('active');
+      }
 
-  function demoNav(scenario) {
-    const prev = [...activeOutlets];
+      function demoNav(scenario) {
+        const prev = [...activeOutlets];
 
-    if (scenario === 'none')    activeOutlets = [];
-    else if (scenario === 'A')  activeOutlets = ['A'];
-    else if (scenario === 'AB') activeOutlets = ['A', 'B'];
-    else if (scenario === 'ABC') activeOutlets = ['A', 'B', 'C'];
-    else if (scenario === 'ABCDE') activeOutlets = ['A', 'B', 'C', 'D', 'E'];
-    else if (scenario === 'nested') activeOutlets = ['A', 'B'];
+        if (scenario === 'none') activeOutlets = [];
+        else if (scenario === 'A') activeOutlets = ['A'];
+        else if (scenario === 'AB') activeOutlets = ['A', 'B'];
+        else if (scenario === 'ABC') activeOutlets = ['A', 'B', 'C'];
+        else if (scenario === 'ABCDE')
+          activeOutlets = ['A', 'B', 'C', 'D', 'E'];
+        else if (scenario === 'nested') activeOutlets = ['A', 'B'];
 
-    const isNested = scenario === 'nested';
+        const isNested = scenario === 'nested';
 
-    // diff
-    const added   = activeOutlets.filter(o => !prev.includes(o));
-    const removed = prev.filter(o => !activeOutlets.includes(o));
-    removed.forEach(o => log(`outlet "${o}" removed`, 'rem'));
-    added.forEach(o =>   log(`outlet "${o}" added → child route created dynamically`, 'add'));
-    if (isNested && !prev.includes('A')) log('nested outlet "A1" added inside A', 'add');
-    if (added.length === 0 && removed.length === 0) {
-      if (isNested) log('showing nested outlet A1 inside panel A', 'nav');
-      else log('navigation (no change)', 'nav');
-    }
+        // diff
+        const added = activeOutlets.filter(o => !prev.includes(o));
+        const removed = prev.filter(o => !activeOutlets.includes(o));
+        removed.forEach(o => log(`outlet "${o}" removed`, 'rem'));
+        added.forEach(o =>
+          log(`outlet "${o}" added → child route created dynamically`, 'add')
+        );
+        if (isNested && !prev.includes('A'))
+          log('nested outlet "A1" added inside A', 'add');
+        if (added.length === 0 && removed.length === 0) {
+          if (isNested) log('showing nested outlet A1 inside panel A', 'nav');
+          else log('navigation (no change)', 'nav');
+        }
 
-    document.getElementById('url-display').textContent = buildUrl(activeOutlets, isNested);
-    renderPanels(activeOutlets, isNested);
-    updateButtons(scenario);
-  }
+        document.getElementById('url-display').textContent = buildUrl(
+          activeOutlets,
+          isNested
+        );
+        renderPanels(activeOutlets, isNested);
+        updateButtons(scenario);
+      }
 
-  function closePanel(key) {
-    const prev = [...activeOutlets];
-    activeOutlets = activeOutlets.filter(o => o !== key);
-    log(`outlet "${key}" closed by user`, 'rem');
+      function closePanel(key) {
+        const prev = [...activeOutlets];
+        activeOutlets = activeOutlets.filter(o => o !== key);
+        log(`outlet "${key}" closed by user`, 'rem');
 
-    const currentBtn = document.querySelector('.demo-nav button.active');
-    if (currentBtn) currentBtn.classList.remove('active');
+        const currentBtn = document.querySelector('.demo-nav button.active');
+        if (currentBtn) currentBtn.classList.remove('active');
 
-    document.getElementById('url-display').textContent = buildUrl(activeOutlets, false);
-    renderPanels(activeOutlets, false);
-  }
-</script>
-
-</body>
+        document.getElementById('url-display').textContent = buildUrl(
+          activeOutlets,
+          false
+        );
+        renderPanels(activeOutlets, false);
+      }
+    </script>
+  </body>
 </html>

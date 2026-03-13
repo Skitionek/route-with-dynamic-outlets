@@ -1,6 +1,6 @@
 <div>
   Dynamic Outlets
   <router-outlet *ngFor="let outlet of outlets$ | async" [name]="outlet">
-    {{outlet}}
+    {{ outlet }}
   </router-outlet>
 </div>
