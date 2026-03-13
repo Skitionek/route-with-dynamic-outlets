@@ -1,7 +1,11 @@
 # route-with-dynamic-outlets
 
-Some bigger web applications provides panels/tabs interfaces. So far the implementations which I have saw were based on singular route with implementations which comes on top of it. While this solution works for simple case it cripples all advanced features which angular router has to offer (especially nestead routes). This library provides laverages angular router outlets to adress previous drawbacks.
-Curently it is rather proof on concept but it shows clean direction on how advanced panels/tabs interfaces can be implemented.
+[![Demo](https://img.shields.io/badge/demo-GitHub%20Pages-8a63f7?logo=github)](https://skitionek.github.io/route-with-dynamic-outlets/)
+
+Some bigger web applications provide panels/tabs interfaces. So far the implementations which I have seen were based on singular route with implementations which comes on top of it. While this solution works for simple case it cripples all advanced features which angular router has to offer (especially nested routes). This library leverages angular router outlets to address previous drawbacks.
+Currently it is rather proof of concept but it shows clean direction on how advanced panels/tabs interfaces can be implemented.
+
+👉 **[View the interactive demo](https://skitionek.github.io/route-with-dynamic-outlets/)**
 
 ## Getting started
 
