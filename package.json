@@ -1,5 +1,5 @@
 {
-  "name": "route-with-dynamic-outlets",
+  "name": "@skitionek/route-with-dynamic-outlets",
   "version": "0.0.1-development",
   "description": "A template for creating npm packages using TypeScript and VSCode",
   "main": "./lib/index.js",
@@ -139,6 +139,9 @@
       "@semantic-release/npm",
       "@semantic-release/github"
     ]
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   },
   "directories": {
     "test": "test"
