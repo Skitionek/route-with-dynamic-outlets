@@ -17,6 +17,7 @@ jobs:
       issues: write # to be able to comment on released issues
       pull-requests: write # to be able to comment on released pull requests
       id-token: write # to enable use of OIDC for npm provenance
+      packages: write # to be able to publish to GitHub Packages
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,9 +35,23 @@ jobs:
       - name: Test
         run: npm test
       - name: Release
+        id: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release
+        run: |
+          npx semantic-release
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+      - name: Setup Node.js for GitHub Packages
+        if: steps.release.outputs.version != '0.0.1-development'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          registry-url: 'https://npm.pkg.github.com'
+      - name: Publish to GitHub Packages
+        if: steps.release.outputs.version != '0.0.1-development'
+        run: npm publish --registry=https://npm.pkg.github.com
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload Code Coverage
         uses: codecov/codecov-action@v5
