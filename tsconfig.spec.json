@@ -12,6 +12,7 @@
   "include": [
     "src/**/*.ts",
     "test/**/*.ts",
+    "test/**/*.d.ts",
     "src/**/*.d.ts",
     "setup-jest.ts"
   ]
