@@ -1,22 +1,17 @@
-import { provideLocationMocks } from '@angular/common/testing';
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import {
-  provideRouter,
-  Router,
-  RouterModule,
-  Routes,
-  UrlSegment,
-} from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Router, Routes, UrlSegment } from '@angular/router';
 import { DynamicOutletsComponent } from './components/dynamic-outlets.component';
 import { PlaceholderComponent } from './components/placeholder.component';
 
 import { createRouteWithDynamicOutlets } from '../src';
 
 @Component({
-  standalone: true,
-  imports: [RouterModule],
-  template: '<router-outlet />',
+  selector: 'app-test-host',
+  template: '<router-outlet></router-outlet>',
+  standalone: false,
 })
 class TestHostComponent {}
 
@@ -66,8 +61,8 @@ describe('Router: App', () => {
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [TestHostComponent],
-      providers: [provideRouter(routes), provideLocationMocks()],
+      imports: [RouterTestingModule.withRoutes(routes), CommonModule],
+      declarations: [TestHostComponent, DynamicOutletsComponent, PlaceholderComponent],
     });
 
     router = TestBed.inject(Router);

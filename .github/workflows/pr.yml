@@ -7,8 +7,41 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         node-version: [22.x, 24.x]
+        # Angular versions supported by the library (13 is the minimum that works with
+        # jest-preset-angular@16 in ESM mode; the library source is compatible with Angular >= 9).
+        angular-version: ['13', '14', '15', '16', '17', '18', '19', '20', '21']
+        include:
+          # zone.js version that matches each Angular release
+          - angular-version: '13'
+            zone-version: '0.11'
+            rxjs-version: '7'
+          - angular-version: '14'
+            zone-version: '0.11'
+            rxjs-version: '7'
+          - angular-version: '15'
+            zone-version: '0.12'
+            rxjs-version: '7'
+          - angular-version: '16'
+            zone-version: '0.13'
+            rxjs-version: '7'
+          - angular-version: '17'
+            zone-version: '0.14'
+            rxjs-version: '7'
+          - angular-version: '18'
+            zone-version: '0.14'
+            rxjs-version: '7'
+          - angular-version: '19'
+            zone-version: '0.15'
+            rxjs-version: '7'
+          - angular-version: '20'
+            zone-version: '0.15'
+            rxjs-version: '7'
+          - angular-version: '21'
+            zone-version: '0.15'
+            rxjs-version: '7'
 
     steps:
       - uses: actions/checkout@v4
@@ -18,6 +51,19 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - run: npm ci
+      - name: Install Angular ${{ matrix.angular-version }}
+        run: |
+          npm install \
+            @angular/common@${{ matrix.angular-version }} \
+            @angular/compiler@${{ matrix.angular-version }} \
+            @angular/compiler-cli@${{ matrix.angular-version }} \
+            @angular/core@${{ matrix.angular-version }} \
+            @angular/platform-browser@${{ matrix.angular-version }} \
+            @angular/platform-browser-dynamic@${{ matrix.angular-version }} \
+            @angular/router@${{ matrix.angular-version }} \
+            zone.js@${{ matrix.zone-version }} \
+            rxjs@${{ matrix.rxjs-version }} \
+            --force
       - run: npm run build --if-present
       - run: npm test
       - name: Upload Code Coverage

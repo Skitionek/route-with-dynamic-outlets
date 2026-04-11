@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { map, Observable, switchMap } from 'rxjs';
-import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { OutletsMap } from '../../src';
 
 @Component({
-  standalone: true,
   selector: 'app-dynamic-outlets',
   templateUrl: './dynamic-outlets.component.html',
-  imports: [RouterModule, CommonModule],
+  standalone: false,
 })
 export class DynamicOutletsComponent {
   constructor(protected activatedRoute: ActivatedRoute) {}

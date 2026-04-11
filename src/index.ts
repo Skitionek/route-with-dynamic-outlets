@@ -1,11 +1,38 @@
 import {
-  defaultUrlMatcher,
   Route,
   Routes,
   UrlMatchResult,
   UrlSegment,
   UrlSegmentGroup,
 } from '@angular/router';
+
+// Replicates Angular's built-in defaultUrlMatcher algorithm.
+// `defaultUrlMatcher` was only added to the public Angular Router API in Angular 14,
+// so we provide our own implementation to support Angular >= 9.
+const defaultUrlMatcher = (
+  segments: UrlSegment[],
+  group: UrlSegmentGroup,
+  route: Route
+): UrlMatchResult | null => {
+  const parts = (route.path ?? '').split('/');
+  if (parts.length > segments.length) return null;
+  if (
+    route.pathMatch === 'full' &&
+    (group.hasChildren() || parts.length < segments.length)
+  )
+    return null;
+  const posParams: { [key: string]: UrlSegment } = {};
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    const segment = segments[i];
+    if (part.startsWith(':')) {
+      posParams[part.substring(1)] = segment;
+    } else if (part !== segment.path) {
+      return null;
+    }
+  }
+  return { consumed: segments.slice(0, parts.length), posParams };
+};
 import lodash from 'lodash';
 import { BehaviorSubject } from 'rxjs';
 
