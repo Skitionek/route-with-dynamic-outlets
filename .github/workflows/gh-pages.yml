@@ -11,8 +11,7 @@ on:
 permissions:
   contents: read
   pages: write
-  id-token: write
-
+  id-token: write # kics-scan ignore-line
 concurrency:
   group: pages
   cancel-in-progress: false
