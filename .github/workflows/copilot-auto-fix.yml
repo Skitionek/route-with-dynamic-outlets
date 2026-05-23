@@ -21,6 +21,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    env:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN }}
 
     steps:
       - name: Checkout failing branch
@@ -34,14 +36,19 @@ jobs:
         with:
           node-version: lts/*
 
+      - name: Skip when Copilot token is missing
+        if: env.COPILOT_GITHUB_TOKEN == ''
+        run: echo 'COPILOT_TOKEN is not configured; skipping Copilot auto-fix.'
+
       - name: Install Copilot CLI
+        if: env.COPILOT_GITHUB_TOKEN != ''
         run: npm install -g @github/copilot
 
       - name: Run Copilot CLI to fix failing tests
+        if: env.COPILOT_GITHUB_TOKEN != ''
         # COPILOT_TOKEN must be a fine-grained PAT with the "Copilot Requests" permission.
         # Store it as a repository secret named COPILOT_TOKEN.
         env:
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN }}
           WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
           BRANCH_NAME: ${{ github.event.workflow_run.head_branch }}
           RUN_URL: ${{ github.event.workflow_run.html_url }}
@@ -53,6 +60,7 @@ jobs:
             --no-ask-user
 
       - name: Create PR with Copilot fixes
+        if: env.COPILOT_GITHUB_TOKEN != ''
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         id: cpr
         with:
@@ -75,7 +83,7 @@ jobs:
           base: ${{ github.event.workflow_run.head_branch }}
 
       - name: Post fix-PR link as comment on original PR
-        if: steps.cpr.outputs.pull-request-url != ''
+        if: env.COPILOT_GITHUB_TOKEN != '' && steps.cpr.outputs.pull-request-url != ''
         uses: actions/github-script@v9
         with:
           script: |
