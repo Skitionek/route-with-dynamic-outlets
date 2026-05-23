@@ -47,7 +47,7 @@ jobs:
       - name: Run Copilot CLI to fix failing tests
         if: env.COPILOT_GITHUB_TOKEN != ''
         # COPILOT_TOKEN must be a fine-grained PAT with the "Copilot Requests" permission.
-        # Store it as a repository secret named COPILOT_TOKEN.
+        # The repository secret is named COPILOT_TOKEN and is exposed here as COPILOT_GITHUB_TOKEN.
         env:
           WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
           BRANCH_NAME: ${{ github.event.workflow_run.head_branch }}
