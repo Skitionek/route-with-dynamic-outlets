@@ -1,5 +1,6 @@
 {
   "editor.formatOnSave": true,
+  "cSpell.diagnosticLevel": "Warning",
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
