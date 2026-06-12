@@ -45,7 +45,7 @@
   "homepage": "https://github.com/Skitionek/route-with-dynamic-outlets#readme",
   "devDependencies": {
     "@angular/common": "21.2.15",
-    "@angular/compiler": "22.0.0",
+    "@angular/compiler": "22.0.1",
     "@angular/compiler-cli": "22.0.0",
     "@angular/core": "21.2.13",
     "@angular/platform-browser": "21.2.13",
