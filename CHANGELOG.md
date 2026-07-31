@@ -7,5 +7,6 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Aligned Angular development dependency patch versions to 22.0.8 and pinned TypeScript to a compatible 6.0.x release so npm install can resolve peer dependencies and builds can run.
+- Raised the Node.js baseline to 22.22.3+ across package engines, CI, and devcontainer setup to match Angular 22 toolchain engine requirements.
 
 [Unreleased]: https://github.com/Skitionek/route-with-dynamic-outlets/compare/v1.1.2...HEAD

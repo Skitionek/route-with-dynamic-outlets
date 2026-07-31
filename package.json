@@ -26,7 +26,7 @@
   "license": "MIT",
   "author": "Dominik Maszczyk <Skitionek@gmail.com> (https://github.com/Skitionek)",
   "engines": {
-    "node": ">=22.14.0"
+    "node": ">=22.22.3"
   },
   "keywords": [
     "boilerplate",
