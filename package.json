@@ -45,10 +45,10 @@
   "homepage": "https://github.com/Skitionek/route-with-dynamic-outlets#readme",
   "devDependencies": {
     "@angular/common": "22.0.8",
-    "@angular/compiler": "22.0.1",
+    "@angular/compiler": "22.0.8",
     "@angular/compiler-cli": "22.0.8",
     "@angular/core": "22.0.8",
-    "@angular/platform-browser": "22.0.1",
+    "@angular/platform-browser": "22.0.8",
     "@angular/platform-browser-dynamic": "22.0.8",
     "@angular/router": "22.0.8",
     "@types/jest": "^30.0.0",
@@ -74,7 +74,7 @@
     "rxjs": "^7.8.2",
     "semantic-release": "^25.0.3",
     "ts-node": "^10.9.2",
-    "typescript": "^7.0.2",
+    "typescript": "^6.0.3",
     "zone.js": "^0.16.2"
   },
   "peerDependencies": {

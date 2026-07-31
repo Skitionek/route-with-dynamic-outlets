@@ -6,6 +6,6 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- Pinned Angular development dependencies to 21.2.12 and set the build root directory explicitly so installs and builds work with the current toolchain.
+- Aligned Angular development dependency patch versions to 22.0.8 and pinned TypeScript to a compatible 6.0.x release so npm install can resolve peer dependencies and builds can run.
 
 [Unreleased]: https://github.com/Skitionek/route-with-dynamic-outlets/compare/v1.1.2...HEAD
