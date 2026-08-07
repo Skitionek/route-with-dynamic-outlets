@@ -3,7 +3,7 @@
   "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
   "remoteUser": "node",
   "updateRemoteUserUID": true,
-  "postCreateCommand": "npm ci",
+  "postCreateCommand": "bash -lc 'nvm install 22.22.3 && nvm alias default 22.22.3 && nvm use 22.22.3 && npm ci'",
   "forwardPorts": [4173],
   "portsAttributes": {
     "4173": {

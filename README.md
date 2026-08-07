@@ -23,7 +23,7 @@ Larger Angular applications often need panels or tabs interfaces where each pane
 npm install @skitionek/route-with-dynamic-outlets
 ```
 
-Local development and CI target Node.js 22.14 or newer.
+Local development and CI target Node.js 22.22.3 or newer.
 
 ### Development container
 
@@ -35,7 +35,7 @@ In VS Code, open the command palette and run:
 Dev Containers: Reopen in Container
 ```
 
-The container uses Node.js 22, installs dependencies with `npm ci`, and forwards port `4173` for the local docs demo.
+The container installs and uses Node.js 22.22.3, then installs dependencies with `npm ci`, and forwards port `4173` for the local docs demo.
 
 ### Run demo locally
 
@@ -134,7 +134,7 @@ createRouteWithDynamicOutlets({
         component: PlaceholderComponent,
       }),
     }),
-})
+});
 ```
 
 ### Custom matcher
@@ -157,7 +157,7 @@ createRouteWithDynamicOutlets({
     path: '',
     component: PlaceholderComponent,
   }),
-})
+});
 ```
 
 ## How it works
@@ -177,16 +177,16 @@ Your component subscribes to `activatedRoute.data.outlets$` and renders a `<rout
 
 Creates an Angular `Route` with a custom matcher that dynamically manages child outlet routes.
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `route` | `RouteWithDynamicOutlets` | Angular `Route` extended with `dynamicOutletFactory`. `path` and `matcher` are both optional and behave the same as in a standard `Route`. |
+| Parameter | Type                      | Description                                                                                                                                |
+| --------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `route`   | `RouteWithDynamicOutlets` | Angular `Route` extended with `dynamicOutletFactory`. `path` and `matcher` are both optional and behave the same as in a standard `Route`. |
 
 ### `RouteWithDynamicOutlets`
 
 Extends Angular's `Route` with one additional field:
 
-| Field | Type | Description |
-|-------|------|-------------|
+| Field                  | Type                        | Description                                                                          |
+| ---------------------- | --------------------------- | ------------------------------------------------------------------------------------ |
 | `dynamicOutletFactory` | `DynamicOutletRouteFactory` | Called once per new outlet name to build the child route definition for that outlet. |
 
 ### `DynamicOutletRouteFactory`

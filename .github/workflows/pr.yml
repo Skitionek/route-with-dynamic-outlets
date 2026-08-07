@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [22.x, 24.x]
+        node-version: [22.22.3, 24.x]
         # Angular versions supported by the library (13 is the minimum that works with
         # jest-preset-angular@16 in ESM mode; the library source is compatible with Angular >= 9).
         angular-version: ['13', '14', '15', '16', '17', '18', '19', '20', '21']
