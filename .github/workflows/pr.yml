@@ -51,7 +51,8 @@ jobs:
             @angular/router@${{ matrix.angular-version }} \
             zone.js@${{ matrix.zone-version }} \
             rxjs@${{ matrix.rxjs-version }} \
-            typescript@${{ matrix.typescript-version }}
+            typescript@${{ matrix.typescript-version }} \
+            --legacy-peer-deps
       - run: npm run build --if-present
       - run: npm test
       - name: Upload Code Coverage
