@@ -25,6 +25,12 @@ npm install @skitionek/route-with-dynamic-outlets
 
 Local development and CI target Node.js 22.22.3 or newer.
 
+### Supported Angular versions
+
+The library's runtime peer dependency is `@angular/router >=9.0.0` — the source reimplements Angular's `defaultUrlMatcher` internally, so it works unmodified back to Angular 9.
+
+CI only exercises Angular 20, 21, and 22 against the test suite, because the pinned `jest-preset-angular@17` test tooling supports that range. Older Angular versions are expected to work at runtime but are not covered by automated tests.
+
 ### Development container
 
 This repository includes a dev container configuration in `.devcontainer/devcontainer.json`.
