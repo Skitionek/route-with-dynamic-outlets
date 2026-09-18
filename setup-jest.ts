@@ -7,10 +7,6 @@ import {
   BrowserTestingModule,
   platformBrowserTesting,
 } from '@angular/platform-browser/testing';
-import {
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting,
-} from '@angular/platform-browser-dynamic/testing';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ng = angularCore as any;
@@ -29,18 +25,11 @@ if (major >= 21) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     platformBrowserTesting([{ provide: ng.COMPILER_OPTIONS, useValue: {}, multi: true }])
   );
-} else if (major >= 20) {
+} else {
   // Angular 20: switched to BrowserTestingModule / platformBrowserTesting.
   getTestBed().initTestEnvironment(
     BrowserTestingModule,
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     platformBrowserTesting([{ provide: ng.COMPILER_OPTIONS, useValue: {}, multi: true }])
-  );
-} else {
-  // Angular 9–19: classic BrowserDynamic setup.
-  getTestBed().initTestEnvironment(
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    BrowserDynamicTestingModule,
-    platformBrowserDynamicTesting()
   );
 }
