@@ -11,7 +11,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [22.22.3, 24.x]
+        # Only test against Node 24.x: jest-preset-angular's ESM test setup (importing
+        # @angular/core in setup-jest.ts) requires jest's require(esm) support, which
+        # is unavailable prior to Node 24.9 even with --experimental-vm-modules on
+        # Node 22 (see https://jestjs.io/docs/ecmascript-modules#require-of-esm).
+        # The library's runtime code itself still supports Node >=22.22.3 per package.json
+        # engines; this only narrows the *test* matrix.
+        node-version: [24.x]
         # Angular versions supported by the library's test tooling (jest-preset-angular@17
         # requires Angular >=20 <23). The library source itself is compatible with Angular >= 9
         # via peerDependencies, but only 20-22 can actually be exercised by this test preset.
