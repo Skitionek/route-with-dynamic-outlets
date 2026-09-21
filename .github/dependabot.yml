@@ -1,5 +1,11 @@
 # Dependabot configuration
 # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# `groups` below exist to keep tightly-coupled dependencies in a single PR.
+# Packages in the same group pin each other via peer dependencies or are
+# released in lockstep, so bumping one alone produces a broken build or a
+# peer-dependency conflict.
+# Add a package to an existing group rather than letting it be bumped solo.
 
 version: 2
 updates:
@@ -10,6 +16,20 @@ updates:
       interval: 'daily'
     commit-message:
       prefix: 'ci'
+    groups:
+      # init/analyze/upload-sarif are three entrypoints of one action; they
+      # must run at the same version across the workflows that call them.
+      codeql-action:
+        patterns:
+          - 'github/codeql-action/*'
+      # configure/upload-artifact/deploy form one Pages deployment handshake:
+      # deploy-pages only accepts the artifact format the matching
+      # upload-pages-artifact produces.
+      pages-actions:
+        patterns:
+          - 'actions/configure-pages'
+          - 'actions/upload-pages-artifact'
+          - 'actions/deploy-pages'
 
   - package-ecosystem: npm
     directory: '/'
@@ -17,3 +37,41 @@ updates:
       interval: weekly
     commit-message:
       prefix: 'build'
+    groups:
+      # The @angular/* packages are pinned to one exact version here because
+      # they are a single release train. Each Angular major also supports
+      # exactly one TypeScript range and one zone.js/rxjs range, so those are
+      # part of the same bump.
+      angular:
+        patterns:
+          - '@angular/*'
+          - 'typescript'
+          - 'zone.js'
+          - 'rxjs'
+      # The jest runner, its jsdom environment and the Angular preset are only
+      # compatible in sets; jest-preset-angular additionally tracks the
+      # Angular major, so it must land with whichever of the two moves first.
+      jest:
+        patterns:
+          - 'jest'
+          - 'jest-*'
+          - '@types/jest'
+          - 'jsdom'
+      # eslint-config/plugin packages peer on the eslint major, and
+      # @typescript-eslint/eslint-plugin and parser must be the same version.
+      eslint:
+        patterns:
+          - 'eslint'
+          - 'eslint-*'
+          - '@typescript-eslint/*'
+          - 'prettier'
+      # commitizen's adapter and semantic-release's commit-analyzer both load
+      # conventional-changelog-conventionalcommits; one preset version has to
+      # satisfy both.
+      release-tooling:
+        patterns:
+          - 'semantic-release'
+          - '@semantic-release/*'
+          - 'commitizen'
+          - 'cz-conventional-changelog'
+          - 'conventional-changelog-*'

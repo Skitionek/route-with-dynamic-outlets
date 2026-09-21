@@ -12,38 +12,24 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [22.22.3, 24.x]
-        # Angular versions supported by the library (13 is the minimum that works with
-        # jest-preset-angular@16 in ESM mode; the library source is compatible with Angular >= 9).
-        angular-version: ['13', '14', '15', '16', '17', '18', '19', '20', '21']
+        # Angular versions supported by the library's test tooling (jest-preset-angular@17
+        # requires Angular >=20 <23). The library source itself is compatible with Angular >= 9
+        # via peerDependencies, but only 20-22 can actually be exercised by this test preset.
+        angular-version: ['20', '21', '22']
         include:
           # zone.js version that matches each Angular release
-          - angular-version: '13'
-            zone-version: '0.11'
-            rxjs-version: '7'
-          - angular-version: '14'
-            zone-version: '0.11'
-            rxjs-version: '7'
-          - angular-version: '15'
-            zone-version: '0.12'
-            rxjs-version: '7'
-          - angular-version: '16'
-            zone-version: '0.13'
-            rxjs-version: '7'
-          - angular-version: '17'
-            zone-version: '0.14'
-            rxjs-version: '7'
-          - angular-version: '18'
-            zone-version: '0.14'
-            rxjs-version: '7'
-          - angular-version: '19'
-            zone-version: '0.15'
-            rxjs-version: '7'
           - angular-version: '20'
             zone-version: '0.15'
             rxjs-version: '7'
+            typescript-version: '5.8'
           - angular-version: '21'
-            zone-version: '0.15'
+            zone-version: '0.16'
             rxjs-version: '7'
+            typescript-version: '5.9'
+          - angular-version: '22'
+            zone-version: '0.16'
+            rxjs-version: '7'
+            typescript-version: '5.9'
 
     steps:
       - uses: actions/checkout@v7
@@ -52,7 +38,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - name: Install Angular ${{ matrix.angular-version }}
         run: |
           npm install \
@@ -65,8 +51,9 @@ jobs:
             @angular/router@${{ matrix.angular-version }} \
             zone.js@${{ matrix.zone-version }} \
             rxjs@${{ matrix.rxjs-version }} \
-            --force
+            typescript@${{ matrix.typescript-version }} \
+            --legacy-peer-deps
       - run: npm run build --if-present
       - run: npm test
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@0b35c9ecc4f0529d0eb674914510c22f85b196b4 # v7.1.0
