@@ -4,7 +4,10 @@ const path = require('path');
 // Resolve the zone.js testing module path for cross-version compatibility.
 //
 // Resolution priority (first match wins):
-//   1. zone.js >= 0.12: use the 'zone.js/testing' package export (ESM).
+//   1. zone.js >= 0.12: use the 'zone.js/testing' package export, preferring
+//      its 'require' (UMD) entry. Jest loads 'zone.js' itself through the
+//      same condition, and only the UMD bundle installs the global Zone that
+//      zone-testing then expects to find.
 //   2. zone.js 0.11.x: use fesm2015/zone-testing.js (ESM-compatible, no export map).
 //   3. zone.js 0.10.x: fall back to dist/zone-testing.js (UMD, last resort).
 const zoneRoot = path.join(__dirname, 'node_modules/zone.js');
@@ -14,11 +17,11 @@ const zoneJsPackage = JSON.parse(
 const zoneTestingExport = (zoneJsPackage.exports ?? {})['./testing'];
 let zoneTestingPath;
 if (zoneTestingExport) {
-  // zone.js >= 0.12 – use the entry from the exports map (ESM by default).
+  // zone.js >= 0.12 – use the entry from the exports map (UMD by default).
   const rel =
     typeof zoneTestingExport === 'string'
       ? zoneTestingExport
-      : zoneTestingExport.default ?? zoneTestingExport.require;
+      : zoneTestingExport.require ?? zoneTestingExport.default;
   zoneTestingPath = path.join(zoneRoot, rel);
 } else if (fs.existsSync(path.join(zoneRoot, 'fesm2015/zone-testing.js'))) {
   // zone.js 0.11.x – fesm2015 bundle present but not in exports map.
