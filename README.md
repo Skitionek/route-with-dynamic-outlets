@@ -15,6 +15,10 @@ Larger Angular applications often need panels or tabs interfaces where each pane
 
 👉 **[View the interactive demo](https://skitionek.github.io/route-with-dynamic-outlets/)**
 
+[![Panels opening side by side while the URL changes](docs/media/dynamic-outlets-poster.jpg)](docs/media/dynamic-outlets.mp4)
+
+*28-second demo recorded in a small Angular 22 app that uses the published package and the real Angular Router. The panel styling is a demo skin; the URL strip at the top reads the real location. Click the image to play.*
+
 ## Getting started
 
 ### Install
